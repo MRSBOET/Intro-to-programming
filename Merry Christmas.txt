@@ -1,0 +1,73 @@
+defmodule ArticleFetcher do
+  # Function to fetch the article text from the given URL
+  def get_article_text(url) do
+    IO.puts("Fetching article from: #{url}")  # Output before making the HTTP request
+    try do
+      # Send GET request to the article URL
+      case HTTPoison.get(url) do
+        {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+          IO.puts("Article fetched successfully!")  # Output after successful fetch
+
+          # Parse the HTML content of the page
+          {:ok, parsed_html} = Floki.parse_document(body)
+
+          # Find the article body using the class 'single__content entry-content m-bottom'
+          article_body =
+            parsed_html
+            |> Floki.find("div.single__content.entry-content.m-bottom")
+            |> Floki.text()
+
+          # If article body is found, return the text
+          if article_body != "" do
+            article_body |> String.trim()
+          else
+            IO.puts("Error: Article body not found.")  # Output if article body is empty
+            ""
+          end
+
+        {:ok, %HTTPoison.Response{status_code: status}} when status >= 400 ->
+          IO.puts("Error: Failed to fetch the article (status: #{status})")  # Output for failed status codes
+          ""
+
+        {:error, %HTTPoison.Error{reason: reason}} ->
+          IO.puts("Error fetching the article: #{reason}")  # Output for request errors
+          ""
+      end
+    rescue
+      e ->
+        IO.puts("Error: #{e}")  # Output for any runtime errors
+    end
+  end
+
+  # Function to count how many times a word appears in the article text
+  def count_word_in_article(article_text, word) do
+    IO.puts("Counting occurrences of the word '#{word}'...")  # Output before counting
+    # Case-insensitive count of the word in the article text
+    article_text
+    |> String.downcase()
+    |> String.split()
+    |> Enum.count(fn w -> String.downcase(w) == String.downcase(word) end)
+  end
+end
+
+defmodule Main do
+  def run do
+    # Article URL
+    url = "https://nypost.com/2024/11/28/us-news/mass-arrests-at-macys-thanksgiving-day-parade-as-anti-israel-protesters-block-path/"
+
+    # Fetch the article text
+    article_text = ArticleFetcher.get_article_text(url)
+
+    # If article text is not empty, count occurrences of the word "Israel"
+    if article_text != "" do
+      word_to_count = "Israel"
+      count = ArticleFetcher.count_word_in_article(article_text, word_to_count)
+      IO.puts("The word '#{word_to_count}' appears #{count} times in the article.")  # Output the word count
+    else
+      IO.puts("No article text to process.")  # Output if article text is empty
+    end
+  end
+end
+
+# Run the program
+Main.run()
