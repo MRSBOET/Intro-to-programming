@@ -1,0 +1,21 @@
+This took me quite awhile to get the proper version(s) installed but it actually was a lot simpler when I looked back on it.
+Open PowerShell (Admin) and run the following command to install Chocolatey:
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+After installation close and re-open powershell (Admin) to use Chocolatey for the rest of our instillations
+Install Erlang using the following command:
+choco install erlang
+Install Elixir using the following command:
+choco install elixir
+Install VSCode using:
+choco install vscode
+You can check installations by using the commands:
+erl -v
+elixir -v
+This is useful if you have compatitibility issues between the versions. 
+https://www.erlang.org/  lists the current versions for Erlag and Elixir
+At this point you will want to install the VSCode ElixirLS extension
+You can go to the extensions sidebar or pressing Ctrl+Shift+X
+Search for ElixirLS and click Install
+You can then use Elixir programs on your machine, write, edit, and compile.
+If you open a powershell you can run the merry christmas program by navigating to the folder in which it is saved and using the following command:
+elixir merry christmas.exs
